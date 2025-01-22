@@ -3,6 +3,18 @@
   "version": "0.0.1",
   "type": "module",
   "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "kinfish",
+    "url": "https://twitter.com/KinfishT"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/farming-labs/befter",
+    "directory": "packages/befter"
+  },
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
@@ -12,7 +24,6 @@
     "start": "node dist/index.js"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
