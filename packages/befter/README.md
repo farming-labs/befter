@@ -1,7 +1,6 @@
-
 # Befter - Hook Management Library
 
-`befter` is a lightweight library for managing hooks in JavaScript, allowing you to register, invoke, and manage hooks in a sequence. Here's how to install it and get started.
+Befter is a lightweight library for managing hooks in JavaScript, allowing you to register, invoke, and manage hooks in a sequence. Here's how to install it and get started.
 
 ## Step 1: Install Befter via NPM
 
