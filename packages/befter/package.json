@@ -15,6 +15,12 @@
     "url": "https://github.com/farming-labs/befter",
     "directory": "packages/beft"
   },
+  "keywords": [
+    "farming-labs",
+    "hooks",
+    "before hooks",
+    "after hooks"
+  ],
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
