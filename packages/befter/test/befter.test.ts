@@ -13,11 +13,11 @@ describe("Befter: [CORE]", () => {
   test("should create a hook with label", () => {
     const hooks = createBefter();
     expect(hooks).toBeInstanceOf(Object);
-    let { currHook: hookLists } = hook(hooks, "hook1", () => {});
+    let { currHook: hookLists } = hook(hooks, "hook1", () => { });
     console.log({ hookLists });
     const hook1 = hookLists["hook1"];
     expect(hook1).toHaveLength(1);
-    hook(hooks, "hook1", () => {});
+    hook(hooks, "hook1", () => { });
     expect(hook1).toHaveLength(2);
     expect(hook1).toEqual([expect.any(Function), expect.any(Function)]);
   });
@@ -27,11 +27,11 @@ describe("Befter: [CORE]", () => {
     let { currHook: hookLists, removeHook: removeHook } = hook(
       hooks,
       "hook1",
-      () => {},
+      () => { },
     );
     const hook1 = hookLists["hook1"];
     expect(hook1).toBeInstanceOf(Object);
-    hook(hooks, "hook1", () => {});
+    hook(hooks, "hook1", () => { });
     const currIndx = 0;
     const removedHook = removeHook(hooks, "hook1", hook1[currIndx]);
     expect(removedHook).toBeInstanceOf(Function);
@@ -51,7 +51,7 @@ describe("Befter: [CORE]", () => {
     const { currHook: hookList2, removeHook: removeHook2 } = hook(
       hooks,
       "hook2",
-      () => {},
+      () => { },
     );
     expect(hookList1).toBeInstanceOf(Object);
     const removedHook = removeHookItSelf(hooks, "hook1");
@@ -61,7 +61,7 @@ describe("Befter: [CORE]", () => {
   test("should get a hook lists", () => {
     const hooks = createBefter();
     expect(hooks).toBeInstanceOf(Object);
-    hook(hooks, "hook1", () => {});
+    hook(hooks, "hook1", () => { });
     const currHook = getHook(hooks, "hook1");
     expect(currHook).toBeInstanceOf(Object);
   });
@@ -139,7 +139,7 @@ describe("Befter: [CORE]", () => {
     expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
     expect(consoleLogSpy).toHaveBeenCalledWith("This is after");
   });
-  test("should call hooks based on option config [parallel]", async () => {
+  test("should call hooks based on option config (runner = parallel)", async () => {
     const hooks = createBefter();
     expect(hooks).toBeInstanceOf(Object);
     const consoleLogSpy = vi.spyOn(console, "log");
