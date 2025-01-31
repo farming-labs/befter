@@ -68,8 +68,13 @@ export function hook<
   const beforeMetas = (
     option: { runner: "serial" | "parallel" } = { runner: "serial" },
   ) => {
-    const addBefores = (cb: InterceptCb) => {
-      before.push(cb);
+    const addBefores = (cb: InterceptCb | InterceptCb[]) => {
+      if (Array.isArray(cb)) {
+        console.log("cb", cb);
+        before.push(...cb);
+      } else {
+        before.push(cb);
+      }
     };
     return [before, addBefores];
   };
@@ -77,8 +82,12 @@ export function hook<
     option: { runner: "serial" | "parallel" } = { runner: "serial" },
   ) => {
     options.afterRunner = option.runner;
-    const addAfters = (cb: InterceptCb) => {
-      after.push(cb);
+    const addAfters = (cb: InterceptCb | InterceptCb[]) => {
+      if (Array.isArray(cb)) {
+        after.push(...cb);
+      } else {
+        after.push(cb);
+      }
     };
     return [after, addAfters];
   };
