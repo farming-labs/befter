@@ -154,9 +154,22 @@ describe("Befter: [CORE]", () => {
     const hooks = createBefter();
     expect(hooks).toBeInstanceOf(Object);
     const consoleLogSpy = vi.spyOn(console, "log");
-    const { beforeMeta: bf1, afterMeta: af1 } = hook(hooks, "hook1", () => {
+    const mainHookFunc1 = () => {
       console.log("This is hook1");
-    });
+    };
+
+    const mainHookFunc2 = () => {
+      console.log("This is hook1");
+    };
+    const {
+      currHook,
+      beforeMeta: bf1,
+      afterMeta: af1,
+    } = hook(hooks, "hook1", [mainHookFunc1, mainHookFunc2]);
+
+    expect(currHook["hook1"]).toBeInstanceOf(Array);
+
+    expect(currHook["hook1"]).toHaveLength(2);
     const [currAf1, addAf1] = af1({
       runner: "serial",
     });

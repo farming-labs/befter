@@ -35,7 +35,9 @@ export function hook<
 >(
   state: BaseBefterState<HooksT>,
   name: NameT,
-  function_: InferInterceptCallback<HooksT, NameT>,
+  function_:
+    | InferInterceptCallback<HooksT, NameT>
+    | InferInterceptCallback<HooksT, NameT>[],
   options: {
     allowDeprecated?: boolean;
     afterRunner?: hookFunctionRunner;
@@ -63,14 +65,17 @@ export function hook<
 } {
   const { hooks } = state;
   hooks[`${name}`] = hooks[`${name}`] || [];
-  hooks[name].push(function_);
+  if (Array.isArray(function_)) {
+    hooks[name].push(...function_);
+  } else {
+    hooks[name].push(function_);
+  }
   const { before, after } = hooks;
   const beforeMetas = (
     option: { runner: "serial" | "parallel" } = { runner: "serial" },
   ) => {
     const addBefores = (cb: InterceptCb | InterceptCb[]) => {
       if (Array.isArray(cb)) {
-        console.log("cb", cb);
         before.push(...cb);
       } else {
         before.push(cb);
