@@ -6,6 +6,7 @@ import {
   InferCb,
   Intercept,
   InterceptCb,
+  HookKeys,
 } from "./types";
 
 type InferSpyEvent<HT extends Record<string, any>> = {

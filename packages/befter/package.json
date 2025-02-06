@@ -2,7 +2,6 @@
   "name": "@farming-labs/befter",
   "version": "0.0.14",
   "type": "module",
-  "main": "index.js",
   "publishConfig": {
     "access": "public"
   },
@@ -15,6 +14,17 @@
     "url": "https://github.com/farming-labs/befter",
     "directory": "packages/beft"
   },
+  "exports": {
+    "import": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.cjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "farming-labs",
     "hooks",
@@ -29,7 +39,6 @@
     "clean": "rimraf dist && rimraf components",
     "start": "node dist/index.js"
   },
-  "keywords": [],
   "license": "ISC",
   "description": "",
   "dependencies": {

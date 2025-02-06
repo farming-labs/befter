@@ -12,7 +12,7 @@ export type BaseBefterState<HooksT> = {
     after: InterceptCb[];
   };
 };
-
+export type HookKeys<T> = keyof T & string;
 export type oneHookState = { [key: string]: InterceptCb[] };
 
 export type InferInterceptCallback<

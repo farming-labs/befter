@@ -67,9 +67,9 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@repo/eslint-config':
+      '@farming-labs/befter':
         specifier: workspace:*
-        version: link:../../packages/eslint-config
+        version: link:../../packages/befter
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
