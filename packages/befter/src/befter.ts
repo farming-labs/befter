@@ -71,10 +71,12 @@ export function hook<
   } else {
     hooks[name].push(function_);
   }
+
   const { before, after } = hooks;
+
   const beforeMetas = (
     option: { runner: "serial" | "parallel" } = { runner: "serial" },
-  ) => {
+  ): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void] => {
     const addBefores = (cb: InterceptCb | InterceptCb[]) => {
       if (Array.isArray(cb)) {
         before.push(...cb);
@@ -84,9 +86,10 @@ export function hook<
     };
     return [before, addBefores];
   };
+
   const afterMetas = (
     option: { runner: "serial" | "parallel" } = { runner: "serial" },
-  ) => {
+  ): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void] => {
     options.afterRunner = option.runner;
     const addAfters = (cb: InterceptCb | InterceptCb[]) => {
       if (Array.isArray(cb)) {
@@ -97,8 +100,8 @@ export function hook<
     };
     return [after, addAfters];
   };
+
   return {
-    options,
     currHook: { [name]: hooks[name] },
     beforeMeta: beforeMetas,
     afterMeta: afterMetas,
