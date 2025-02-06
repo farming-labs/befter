@@ -30,10 +30,7 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@repo/typescript-config':
+      '@farming-labs/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/node':
@@ -70,7 +67,7 @@ importers:
       '@farming-labs/befter':
         specifier: workspace:*
         version: link:../../packages/befter
-      '@repo/typescript-config':
+      '@farming-labs/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/node':
@@ -94,6 +91,9 @@ importers:
 
   packages/befter:
     dependencies:
+      '@farming-labs/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       tsup:
         specifier: ^8.2.4
         version: 8.3.0(jiti@2.4.2)(postcss@8.4.49)(typescript@5.6.2)

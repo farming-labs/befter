@@ -54,13 +54,13 @@ export function hook<
   currHook: oneHookState;
   beforeMeta: (option?: {
     runner: "serial" | "parallel";
-  }) => [InterceptCb[], (cb: InterceptCb) => void];
+  }) => [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void];
   afterMeta: (option?: {
     runner: "serial" | "parallel";
-  }) => [InterceptCb[], (cb: InterceptCb) => void];
+  }) => [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void];
   removeHook: (
     state: BaseBefterState<HooksT>,
-    name: HooksT,
+    name: HookKeys<HooksT>,
     function_: InferInterceptCallback<HooksT, NameT>,
   ) => void;
 } {
@@ -104,21 +104,13 @@ export function hook<
     afterMeta: afterMetas,
     removeHook: (
       state: BaseBefterState<HooksT>,
-      name: HooksT,
+      name: HookKeys<HooksT>,
       function_: InferInterceptCallback<HooksT, NameT>,
     ) => removeHook(state, name, function_),
   };
 }
 export const callHookFromState = (state: oneHookState) => {};
-export function hookAfter<
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
->(
-  afterCb: InterceptCb[],
-  function_: InferInterceptCallback<HooksT, NameT>,
-): [InterceptCb[], () => void] {
-  afterCb.push(function_);
-}
+
 export function hookBefore<
   HooksT extends Record<string, any>,
   NameT extends HookKeys<HooksT>,

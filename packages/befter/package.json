@@ -42,6 +42,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@farming-labs/typescript-config": "workspace:*",
     "tsup": "^8.2.4",
     "unbuild": "^1.2.1",
     "vite": "^4.3.3",
