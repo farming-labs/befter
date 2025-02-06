@@ -20,4 +20,4 @@ Using it in your app
 import { createBefter } from "@farming-labs/befter"
 ```
 
-Go and refer to the [Usage](https://farming-labs.vercel.app/docs/befter/usage) section to learn how to use Befter.
+Go and refer to the [Usage](https://farming-lab.vercel.app/docs/befter/usage) section to learn how to use Befter.
