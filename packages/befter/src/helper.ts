@@ -1,5 +1,5 @@
 import { getHook } from "./befter";
-import type { BaseBefterState, InterceptCb, oneHookState } from "./types";
+import type { BaseBefterState, InterceptCb, oneHookState, HookKeys } from "./types";
 
 // export function flatHooks<T>(
 //   configHooks: NestedHooks<T>,
@@ -84,7 +84,6 @@ export function parallelTaskCaller(hooks: InterceptCb[], args?: any[]) {
   );
 }
 
-/** @deprecated */
 export function serialCaller(hooks: InterceptCb[], arguments_?: any[]) {
   // eslint-disable-next-line unicorn/no-array-reduce
   return hooks.reduce(
@@ -94,7 +93,6 @@ export function serialCaller(hooks: InterceptCb[], arguments_?: any[]) {
   );
 }
 
-/** @deprecated */
 export function parallelCaller(hooks: InterceptCb[], args?: any[]) {
   return Promise.all(hooks.map((hook) => hook(...(args || []))));
 }
