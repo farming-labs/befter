@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
+import { getStatus } from "../lib/utils";
 
 export default function Home() {
   return (
@@ -38,17 +38,13 @@ export default function Home() {
             Deploy now
           </a>
           <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
+            onClick={() => getStatus()}
             rel="noopener noreferrer"
             className={styles.secondary}
           >
             Read our docs
           </a>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
       </main>
       <footer className={styles.footer}>
         <a
