@@ -1,6 +1,6 @@
 {
   "name": "@farming-labs/befter",
-  "version": "0.0.15",
+  "version": "0.0.18",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -12,16 +12,16 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/farming-labs/befter",
-    "directory": "packages/beft"
+    "directory": "packages/befter"
   },
   "exports": {
-    "import": "./dist/index.mjs",
+    "import": "./dist/index.js",
     "types": "./dist/index.d.ts",
-    "require": "./dist/index.cjs"
+    "require": "./dist/index.js"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
