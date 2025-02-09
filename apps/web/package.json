@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@farming-labs/befter": "0.0.15",
+    "@farming-labs/befter": "0.0.16",
     "next": "14.2.6",
     "react": "18.3.1",
     "react-dom": "18.3.1"
