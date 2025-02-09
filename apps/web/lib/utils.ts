@@ -9,11 +9,16 @@ export async function getStatus() {
     console.log("Excuting the main hook.");
   });
   const [currBf, addBf] = bf({
-    runner: "serial",
+    runner: "parallel",
   });
-  addBf(() => {
-    console.log("Do the preprocessing.");
-  });
+  const func1 = () => {
+    console.log("Do the preprocessing 1.");
+  };
+  const func2 = () => {
+    console.log("Do the preprocessing 2.");
+  };
+  addBf([func1, func2]);
+
   const [currAf, addAf] = af();
   addAf(() => {
     console.log("Do the postprocessing.");
