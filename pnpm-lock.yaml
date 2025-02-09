@@ -55,7 +55,7 @@ importers:
   apps/web:
     dependencies:
       '@farming-labs/befter':
-        specifier: 0.0.15
+        specifier: 0.0.17
         version: link:../../packages/befter
       next:
         specifier: 14.2.6
