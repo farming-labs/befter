@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -46,9 +45,6 @@ export default function Home() {
             Read our docs
           </a>
         </div>
-        <Button appName="docs" className={styles.secondary}>
-          Open alert
-        </Button>
       </main>
       <footer className={styles.footer}>
         <a
