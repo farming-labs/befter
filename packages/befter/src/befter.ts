@@ -1,11 +1,8 @@
 import { parallelCallerFunc, serialCallerFunc } from "./helper";
 import {
 	type BaseBefterState,
-	ExtractKey,
 	type HookKeys,
-	InferCb,
 	type InferInterceptCallback,
-	Intercept,
 	type InterceptCb,
 } from "./types";
 

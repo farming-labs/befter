@@ -1,11 +1,10 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import {
 	callHook,
 	createBefter,
 	getHook,
 	getHookWithIndex,
 	hook,
-	removeHook,
 	removeHookItSelf,
 	updateHook,
 } from "../src/befter";
