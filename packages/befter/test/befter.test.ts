@@ -114,6 +114,22 @@ describe("Befter: [CORE]", () => {
 		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
 	});
+	test("should call an async hook lists", async () => {
+		const hooks = createBefter();
+		expect(hooks).toBeInstanceOf(Object);
+		const consoleLogSpy = vi.spyOn(console, "log");
+		const asyncFn = async () => {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			console.log("This is an async function.");
+		};
+		const syncFn = () => {
+			console.log("This is an sync function.");
+		};
+		hook(hooks, "hook1", [asyncFn, syncFn]);
+		await callHook(hooks, "hook1");
+		expect(consoleLogSpy).toHaveBeenCalledWith("This is an sync function.");
+		expect(consoleLogSpy).toHaveBeenCalledWith("This is an async function.");
+	});
 	test("should call before hooks", async () => {
 		const hooks = createBefter();
 		expect(hooks).toBeInstanceOf(Object);
