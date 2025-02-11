@@ -1,10 +1,10 @@
 {
-  "extends": "@farming-labs/typescript-config/base.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "esModuleInterop": true,
-    "moduleResolution": "Node",
-    "outDir": "dist"
-  }
+	"extends": "@farming-labs/typescript-config/base.json",
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"esModuleInterop": true,
+		"moduleResolution": "Node",
+		"outDir": "dist"
+	}
 }

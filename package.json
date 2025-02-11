@@ -4,9 +4,17 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "turbo --filter \"./packages/*\" test"
+    "format": "prettier --write",
+    "test": "turbo --filter \"./packages/*\" test",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --apply"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "dependencies": {
+    "@biomejs/biome": "1.7.3"
   },
   "devDependencies": {
     "prettier": "^3.2.5",

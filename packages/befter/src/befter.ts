@@ -1,240 +1,240 @@
 import { parallelCallerFunc, serialCallerFunc } from "./helper";
 import {
-  BaseBefterState,
-  ExtractKey,
-  InferInterceptCallback,
-  InferCb,
-  Intercept,
-  InterceptCb,
-  HookKeys,
+	type BaseBefterState,
+	type HookKeys,
+	type InferInterceptCallback,
+	type InterceptCb,
 } from "./types";
 
 type InferSpyEvent<HT extends Record<string, any>> = {
-  [key in keyof HT]: {
-    name: key;
-    args: Parameters<HT[key]>;
-    context: Record<string, any>;
-  };
+	[key in keyof HT]: {
+		name: key;
+		args: Parameters<HT[key]>;
+		context: Record<string, any>;
+	};
 }[keyof HT];
 type hookFunctionRunner = "serial" | "parallel";
 type AnyObject<V extends string> = Record<V, any>;
 type InterceptorCb = {};
 type oneHookState = { [key: string]: InterceptCb[] };
 export function createBefter<
-  HooksT extends Record<string, any>,
+	HooksT extends Record<string, any>,
 >(): BaseBefterState<HooksT> {
-  return {
-    hooks: {
-      after: [],
-      before: [],
-    },
-  };
+	return {
+		hooks: {
+			after: [],
+			before: [],
+		},
+	};
 }
 export function hook<
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: NameT,
-  function_:
-    | InferInterceptCallback<HooksT, NameT>
-    | InferInterceptCallback<HooksT, NameT>[],
-  options: {
-    allowDeprecated?: boolean;
-    afterRunner?: hookFunctionRunner;
-    beforeRunner?: hookFunctionRunner;
-    runner?: hookFunctionRunner;
-  } = {
-    allowDeprecated: false,
-    afterRunner: "serial",
-    beforeRunner: "serial",
-    runner: "serial",
-  },
+	state: BaseBefterState<HooksT>,
+	name: NameT,
+	function_:
+		| InferInterceptCallback<HooksT, NameT>
+		| InferInterceptCallback<HooksT, NameT>[],
+	options: {
+		allowDeprecated?: boolean;
+		afterRunner?: hookFunctionRunner;
+		beforeRunner?: hookFunctionRunner;
+		runner?: hookFunctionRunner;
+	} = {
+		allowDeprecated: false,
+		afterRunner: "serial",
+		beforeRunner: "serial",
+		runner: "serial",
+	},
 ): {
-  currHook: oneHookState;
-  beforeMeta: (option?: {
-    runner: "serial" | "parallel";
-  }) => [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void];
-  afterMeta: (option?: {
-    runner: "serial" | "parallel";
-  }) => [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void];
-  removeHook: (
-    state: BaseBefterState<HooksT>,
-    name: HookKeys<HooksT>,
-    function_: InferInterceptCallback<HooksT, NameT>,
-  ) => void;
+	currHook: oneHookState;
+	beforeMeta: (option?: {
+		runner: "serial" | "parallel";
+	}) => [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void];
+	afterMeta: (option?: {
+		runner: "serial" | "parallel";
+	}) => [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void];
+	removeHook: (
+		state: BaseBefterState<HooksT>,
+		name: HookKeys<HooksT>,
+		function_: InferInterceptCallback<HooksT, NameT>,
+	) => void;
 } {
-  const { hooks } = state;
-  hooks[`${name}`] = hooks[`${name}`] || [];
-  if (Array.isArray(function_)) {
-    hooks[name].push(...function_);
-  } else {
-    hooks[name].push(function_);
-  }
+	const { hooks } = state;
+	const existingHook = getHook(state, name);
 
-  const { before, after } = hooks;
+	hooks[`${name}`] = hooks[`${name}`] || [];
+	if (Array.isArray(function_)) {
+		hooks[name].push(...function_);
+	} else {
+		hooks[name].push(function_);
+	}
 
-  const beforeMetas = (
-    option: { runner: "serial" | "parallel" } = { runner: "serial" },
-  ): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void] => {
-    const addBefores = (cb: InterceptCb | InterceptCb[]) => {
-      if (Array.isArray(cb)) {
-        before.push(...cb);
-      } else {
-        before.push(cb);
-      }
-    };
-    return [before, addBefores];
-  };
+	const { before, after } = hooks;
 
-  const afterMetas = (
-    option: { runner: "serial" | "parallel" } = { runner: "serial" },
-  ): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void] => {
-    options.afterRunner = option.runner;
-    const addAfters = (cb: InterceptCb | InterceptCb[]) => {
-      if (Array.isArray(cb)) {
-        after.push(...cb);
-      } else {
-        after.push(cb);
-      }
-    };
-    return [after, addAfters];
-  };
+	const beforeMetas = (
+		option: { runner: "serial" | "parallel" } = { runner: "serial" },
+	): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void] => {
+		const addBefores = (cb: InterceptCb | InterceptCb[]) => {
+			if (Array.isArray(cb)) {
+				before.push(...cb);
+			} else {
+				before.push(cb);
+			}
+		};
+		return [before, addBefores];
+	};
 
-  return {
-    currHook: { [name]: hooks[name] },
-    beforeMeta: beforeMetas,
-    afterMeta: afterMetas,
-    removeHook: (
-      state: BaseBefterState<HooksT>,
-      name: HookKeys<HooksT>,
-      function_: InferInterceptCallback<HooksT, NameT>,
-    ) => removeHook(state, name, function_),
-  };
+	const afterMetas = (
+		option: { runner: "serial" | "parallel" } = { runner: "serial" },
+	): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => void] => {
+		options.afterRunner = option.runner;
+		const addAfters = (cb: InterceptCb | InterceptCb[]) => {
+			if (Array.isArray(cb)) {
+				after.push(...cb);
+			} else {
+				after.push(cb);
+			}
+		};
+		return [after, addAfters];
+	};
+
+	return {
+		currHook: { [name]: hooks[name] },
+		beforeMeta: beforeMetas,
+		afterMeta: afterMetas,
+		removeHook: (
+			state: BaseBefterState<HooksT>,
+			name: HookKeys<HooksT>,
+			function_: InferInterceptCallback<HooksT, NameT>,
+		) => removeHook(state, name, function_),
+	};
 }
 export const callHookFromState = (state: oneHookState) => {};
 
 export function hookBefore<
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: string,
-  function_: InferInterceptCallback<HooksT, NameT>,
-  options: { allowDeprecated?: boolean } = {},
+	state: BaseBefterState<HooksT>,
+	name: string,
+	function_: InferInterceptCallback<HooksT, NameT>,
+	options: { allowDeprecated?: boolean } = {},
 ): [InterceptCb[], () => void] {
-  let {
-    hooks: { before },
-  } = state;
-  before?.push(function_);
+	let {
+		hooks: { before },
+	} = state;
+	before?.push(function_);
 
-  return [
-    before!,
-    () => {
-      before = [];
-    },
-  ];
+	return [
+		before!,
+		() => {
+			before = [];
+		},
+	];
 }
 export const updateHook = <
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: NameT,
-  function_: InferInterceptCallback<HooksT, NameT>,
-  updatedFunction_: InferInterceptCallback<HooksT, NameT>,
+	state: BaseBefterState<HooksT>,
+	name: NameT,
+	function_: InferInterceptCallback<HooksT, NameT>,
+	updatedFunction_: InferInterceptCallback<HooksT, NameT>,
 ): InterceptCb => {
-  const { hooks } = state;
-  const index = hooks[name].indexOf(function_);
-  let updatedHook: InterceptCb = hooks[name][index];
-  if (index !== -1) {
-    hooks[name][index] = updatedFunction_;
-  }
-  return updatedHook;
+	const { hooks } = state;
+	const index = hooks[name].indexOf(function_);
+	const updatedHook: InterceptCb = hooks[name][index];
+	if (index !== -1) {
+		hooks[name][index] = updatedFunction_;
+	}
+	return updatedHook;
 };
 export const removeHook = <
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: NameT,
-  function_: InferInterceptCallback<HooksT, NameT>,
+	state: BaseBefterState<HooksT>,
+	name: NameT,
+	function_: InferInterceptCallback<HooksT, NameT>,
 ): InterceptCb => {
-  const { hooks } = state;
-  const index = hooks[name].indexOf(function_);
-  let removedHook: InterceptCb = hooks[name][index];
-  if (index !== -1) {
-    hooks[name].splice(index, 1);
-  }
-  return removedHook;
+	const { hooks } = state;
+	const index = hooks[name].indexOf(function_);
+	const removedHook: InterceptCb = hooks[name][index];
+	if (index !== -1) {
+		hooks[name].splice(index, 1);
+	} else {
+		throw new Error("[BEFTER]: Hook not found");
+	}
+	return removedHook;
 };
 export const removeHookItSelf = <
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: NameT,
+	state: BaseBefterState<HooksT>,
+	name: NameT,
 ): oneHookState | null => {
-  const { hooks } = state;
-  let removedHook: oneHookState | null = null;
-  Object.keys(hooks).map((hk) => {
-    if (hk === name) {
-      removedHook = { [hk]: hooks[hk] };
-
-      delete hooks[name];
-    }
-  });
-  return removedHook;
+	const { hooks } = state;
+	let removedHook: oneHookState | null = null;
+	Object.keys(hooks).map((hk) => {
+		if (hk === name) {
+			removedHook = { [hk]: hooks[hk] };
+			delete hooks[name];
+		}
+	});
+	return removedHook;
 };
 
 export const getHookWithIndex = <
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: NameT,
-  indx: number,
+	state: BaseBefterState<HooksT>,
+	name: NameT,
+	indx: number,
 ): { [name: string]: oneHookState[string][number] } | null => {
-  const { hooks } = state;
-  if (hooks.hasOwnProperty(name)) {
-    const currHook = hooks[name];
-    if (indx >= currHook.length) return null;
-    return { [name]: currHook[indx] };
-  } else {
-    return null;
-  }
+	const { hooks } = state;
+	if (hooks.hasOwnProperty(name)) {
+		const currHook = hooks[name];
+		if (indx >= currHook.length) return null;
+		return { [name]: currHook[indx] };
+	} else {
+		return null;
+	}
 };
 export const getHook = <
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: NameT,
+	state: BaseBefterState<HooksT>,
+	name: NameT,
 ): oneHookState | null => {
-  const { hooks } = state;
-  if (hooks.hasOwnProperty(name)) {
-    return { [name]: hooks[name] };
-  } else {
-    return null;
-  }
+	const { hooks } = state;
+	if (hooks.hasOwnProperty(name)) {
+		return { [name]: hooks[name] };
+	} else {
+		return null;
+	}
 };
 
 export const callHook = async <
-  HooksT extends Record<string, any>,
-  NameT extends HookKeys<HooksT>,
+	HooksT extends Record<string, any>,
+	NameT extends HookKeys<HooksT>,
 >(
-  state: BaseBefterState<HooksT>,
-  name: NameT,
-  option: {
-    runner: "serial" | "parallel";
-  } = { runner: "serial" },
+	state: BaseBefterState<HooksT>,
+	name: NameT,
+	option: {
+		runner: "serial" | "parallel";
+	} = { runner: "serial" },
 ): Promise<void> => {
-  const { hooks } = state;
-  if (option?.runner === "serial") {
-    await serialCallerFunc(state, name);
-  } else {
-    await parallelCallerFunc(state, name);
-  }
+	const { hooks } = state;
+	if (option?.runner === "serial") {
+		await serialCallerFunc(state, name);
+	} else {
+		await parallelCallerFunc(state, name);
+	}
 };
 
 // export const getConfigs = async <
