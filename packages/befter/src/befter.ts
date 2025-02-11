@@ -13,6 +13,7 @@ type InferSpyEvent<HT extends Record<string, any>> = {
 		context: Record<string, any>;
 	};
 }[keyof HT];
+type Storage = "local" | "redis";
 type hookFunctionRunner = "serial" | "parallel";
 type AnyObject<V extends string> = Record<V, any>;
 type InterceptorCb = {};
@@ -41,6 +42,7 @@ export function hook<
 		afterRunner?: hookFunctionRunner;
 		beforeRunner?: hookFunctionRunner;
 		runner?: hookFunctionRunner;
+		storage?: "";
 	} = {
 		allowDeprecated: false,
 		afterRunner: "serial",
