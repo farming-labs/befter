@@ -194,7 +194,7 @@ export async function getRedisHookWithIndex<
 ): Promise<{ [name: string]: InterceptCb } | null> {
   const hooks = JSON.parse((await redisClient.get(name)) || "[]");
   if (!hooks || index >= hooks.length) return null;
-  return { [name]: hooks[index] };
+  return { [name]: eval(hooks[index]) };
 }
 
 // Get Hook from Redis Storage

@@ -167,7 +167,6 @@ describe("Befter: [REDIS CORE]", () => {
       redisClient,
     );
     await callRedisHook(hooks, "hook1", redisClient);
-
     expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
     await redisClient.flushAll();
   });
@@ -197,7 +196,6 @@ describe("Befter: [REDIS CORE]", () => {
     );
     expect(hookFunctionByIndx).toBeInstanceOf(Object);
     expect(hookFunctionByIndx["hook1"]).toBeInstanceOf(Function);
-
     await redisClient.flushAll();
   });
 
