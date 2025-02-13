@@ -111,9 +111,15 @@ export function updateHook<
 	name: NameT,
 	oldFunction: InferInterceptCallback<HooksT, NameT>,
 	newFunction: InferInterceptCallback<HooksT, NameT>,
-): InterceptCb {
+): InterceptCb | Promise<InterceptCb> {
 	if (state.storage.type === "redis" && state.storage.url) {
-		return updateRedisHook(name, oldFunction, newFunction, state.storage.url);
+		return updateRedisHook(
+			state,
+			name,
+			oldFunction,
+			newFunction,
+			state.storage.url,
+		);
 	} else {
 		return updateLocalHook(state, name, oldFunction, newFunction);
 	}
@@ -127,7 +133,7 @@ export function removeHook<
 	state: BaseBefterState<HooksT>,
 	name: NameT,
 	function_: InferInterceptCallback<HooksT, NameT>,
-): InterceptCb {
+): InterceptCb | Promise<InterceptCb> {
 	if (state.storage.type === "redis" && state.storage.url) {
 		return removeRedisHook(state, name, function_, state.storage.url);
 	} else {
