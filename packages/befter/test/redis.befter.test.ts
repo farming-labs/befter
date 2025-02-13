@@ -25,8 +25,10 @@ describe("Befter: [REDIS CORE]", () => {
 			storage: {
 				type: "redis",
 				url: "redis://localhost:6379",
+				client: redisClient,
 			},
 		});
+
 		expect(hooks).toBeInstanceOf(Object);
 		const { currHook: hookLists } = await hookRedis(
 			hooks,

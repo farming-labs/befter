@@ -50,6 +50,7 @@ export function createBefter<HooksT extends Record<string, any>>(options: {
 	storage: {
 		type: Storage;
 		url?: string;
+		client?: any;
 	};
 	url?: string;
 }): BaseBefterState<HooksT> {

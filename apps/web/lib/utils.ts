@@ -1,5 +1,9 @@
 import { callHook, createBefter, hook } from "@farming-labs/befter";
-const hooks = createBefter();
+const hooks = createBefter({
+	storage: {
+		type: "local",
+	},
+});
 export async function getStatus() {
 	const {
 		currHook: hookLists,
