@@ -46,5 +46,5 @@ jobs:
       - name: Test
         env:
           CI: true
-          REDIS_URL: redis://redis:6379
-        run: pnpm test -- --ci --coverage
+          REDIS_URL: redis://localhost:6379
+        run: pnpm test
