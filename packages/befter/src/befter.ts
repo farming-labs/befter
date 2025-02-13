@@ -139,7 +139,10 @@ export function removeHook<
 export function removeHookItself<
 	HooksT extends Record<string, any>,
 	NameT extends HookKeys<HooksT>,
->(state: BaseBefterState<HooksT>, name: NameT): OneHookState | null {
+>(
+	state: BaseBefterState<HooksT>,
+	name: NameT,
+): OneHookState | null | Promise<void> {
 	if (state.storage.type === "redis" && state.storage.url) {
 		return removeRedisHookItself(state, name, state.storage.url);
 	} else {
