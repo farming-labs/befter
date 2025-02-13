@@ -1,5 +1,9 @@
 import { callHook, createBefter, hook } from "@farming-labs/befter";
-const hooks = createBefter();
+const hooks = createBefter({
+	storage: {
+		type: "local",
+	},
+});
 export async function getStatus() {
 	const {
 		currHook: hookLists,
@@ -8,9 +12,7 @@ export async function getStatus() {
 	} = hook(hooks, "hook1", () => {
 		console.log("Excuting the main hook.");
 	});
-	const [currBf, addBf] = bf({
-		runner: "parallel",
-	});
+	const [currBf, addBf] = bf({ runner: "serial" });
 	const func1 = () => {
 		console.log("Do the preprocessing 1.");
 	};

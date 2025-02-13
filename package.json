@@ -2,7 +2,7 @@
   "name": "@farmig-labs/core",
   "private": true,
   "scripts": {
-    "build": "turbo build",
+    "build": "turbo --filter \"./packages/*\" build",
     "dev": "turbo dev",
     "format": "prettier --write",
     "test": "turbo --filter \"./packages/*\" test",

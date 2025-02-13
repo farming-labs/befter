@@ -1,4 +1,4 @@
-import { getHook } from "./befter";
+import { getLocalHook } from "./storage/local";
 import type {
 	BaseBefterState,
 	HookKeys,
@@ -113,18 +113,16 @@ export async function parallelCallerFunc<
 	NameT extends HookKeys<HooksT>,
 >(baseHook: BaseBefterState<HooksT>, name: NameT) {
 	const { hooks } = baseHook;
-	const currHook = getHook(baseHook, name);
+	const currHook = getLocalHook(baseHook, name);
 	const {
 		hooks: { before, after },
 	} = baseHook;
 	if (currHook) {
 		// calling the before hooks serially
 		await parallelCaller(before);
-
 		// then calling the main hook
 		await parallelHookCall(currHook, name);
 		// calling the after hooks serially
-
 		await parallelCaller(after);
 	}
 }
@@ -133,18 +131,17 @@ export async function serialCallerFunc<
 	NameT extends HookKeys<HooksT>,
 >(baseHook: BaseBefterState<HooksT>, name: NameT) {
 	const { hooks } = baseHook;
-	const currHook = getHook(baseHook, name);
+	const currHook = getLocalHook(baseHook, name);
 	const {
 		hooks: { before, after },
 	} = baseHook;
+	console.log({ before, after });
 	if (currHook) {
 		// calling the before hooks serially
 		await serialCaller(before);
-
 		// then calling the main hook
 		await serialHookCall(currHook, name);
-		// clling the after hooks serially
-
+		// calling the after hooks serially
 		await serialCaller(after);
 	}
 }
