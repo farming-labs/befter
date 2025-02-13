@@ -264,10 +264,10 @@ describe("Befter: [REDIS CORE]", () => {
       },
       redisClient,
     );
-    const [currBf, addBf] = bf({
+    const [currBf, addBf] = await bf({
       runner: "serial",
     });
-    addBf(() => {
+    await addBf(() => {
       console.log("This is before");
     });
     const func1 = () => {
@@ -276,8 +276,11 @@ describe("Befter: [REDIS CORE]", () => {
     const func2 = () => {
       console.log("This is before 2");
     };
-    addBf([func1, func2]);
-    expect(currBf).toHaveLength(3);
+    const currBefore1 = await currBf();
+    expect(currBefore1).toHaveLength(1);
+    await addBf([func1, func2]);
+    const currBefore2 = await currBf();
+    expect(currBefore2).toHaveLength(3);
     await callRedisHook(hooks, "hook1", redisClient);
     expect(consoleLogSpy).toHaveBeenCalledWith("This is before");
     expect(consoleLogSpy).toHaveBeenCalledWith("This is before 1");
@@ -304,11 +307,12 @@ describe("Befter: [REDIS CORE]", () => {
       },
       redisClient,
     );
-    const [currAf, addAf] = af();
-    addAf(() => {
+    const [currAf, addAf] = await af({ runner: "serial" });
+    await addAf(() => {
       console.log("This is after");
     });
-    expect(currAf).toHaveLength(1);
+    const currAfter1 = await currAf();
+    expect(currAfter1).toHaveLength(1);
     await callRedisHook(hooks, "hook1", redisClient);
     expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
     expect(consoleLogSpy).toHaveBeenCalledWith("This is after");

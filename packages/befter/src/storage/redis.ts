@@ -48,58 +48,143 @@ export async function hookRedis<
   });
 
   await redisClient.set(name, JSON.stringify(existingHooks));
-  const keyExistsLater = await redisClient.get(name);
-  const beforeMetas = (
+
+  const beforeMetas = async (
     hooks?: any,
     hookLabel?: string,
     option: { runner: "serial" | "parallel" } = { runner: "serial" },
-  ): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => Promise<void>] => {
+  ): Promise<
+    [
+      () => Promise<InterceptCb[]>,
+      (cb: InterceptCb | InterceptCb[]) => Promise<void>,
+    ]
+  > => {
+    // Lazy getter for before hooks
     const getBefores = async () => {
-      const storedBefores = await redisClient.lRange(
-        `befter:before:${hookLabel}`,
-        0,
-        -1,
-      );
-      return storedBefores.map(
-        (fnStr) => new Function(`return ${fnStr}`)() as InterceptCb,
-      );
+      const result = await redisClient.get(`befter:before:${name}`);
+      return result
+        ? JSON.parse(result).map(
+            (fnStr: string) => new Function(`return ${fnStr}`)() as InterceptCb,
+          )
+        : [];
     };
 
     const addBefores = async (cb: InterceptCb | InterceptCb[]) => {
       const cbs = Array.isArray(cb) ? cb : [cb];
-      for (const fn of cbs) {
-        await redisClient.rPush(`befter:before:${hookLabel}`, fn.toString());
-      }
+
+      const existingBefores = await getBefores();
+
+      const newBeforeStrings = cbs.map((fn) => fn.toString());
+
+      newBeforeStrings.forEach((hookStr) => {
+        if (!existingBefores.map((fn) => fn.toString()).includes(hookStr)) {
+          existingBefores.push(new Function(`return ${hookStr}`)());
+        }
+      });
+
+      await redisClient.set(
+        `befter:before:${name}`,
+        JSON.stringify(existingBefores.map((fn) => fn.toString())),
+      );
     };
-
-    return [getBefores(), addBefores];
+    const result = await getBefores();
+    return [getBefores, addBefores];
   };
+  // const beforeMetas = async (
+  //   hooks?: any,
+  //   hookLabel?: string,
+  //   option: { runner: "serial" | "parallel" } = { runner: "serial" },
+  // ): Promise<
+  //   [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => Promise<void>]
+  // > => {
+  //   const getBefores = async () => {
+  //     const result = await redisClient.get(`befter:before:${name}`);
+  //     return JSON.parse(result);
+  //   };
+  //   let beforeHook = [];
+  //   const addBefores = async (cb: InterceptCb | InterceptCb[]) => {
+  //     const initialBefores = await redisClient.get(`befter:before:${name}`);
+  //     const cbs = Array.isArray(cb) ? cb : [cb];
+  //     if (initialBefores) {
+  //       cbs.push(JSON.parse(initialBefores));
+  //     }
+  //     const beforeHooks = cbs.map((fn) => fn.toString());
+  //     console.log({ cbs, beforeHooks });
+  //     await redisClient.set(
+  //       `befter:before:${name}`,
+  //       JSON.stringify(beforeHooks),
+  //     );
+  //     const result = await redisClient.get(`befter:before:${name}`);
+  //     return JSON.parse(result);
+  //   };
 
-  const afterMetas = (
+  //   const bfHooks = await redisClient.get(`befter:before:${name}`);
+  //   const parsedBfHooks = JSON.parse(bfHooks);
+  //   return [parsedBfHooks, addBefores];
+  // };
+
+  const afterMetas = async (
     hooks?: any,
     hookLabel?: string,
     option: { runner: "serial" | "parallel" } = { runner: "serial" },
-  ): [InterceptCb[], (cb: InterceptCb | InterceptCb[]) => Promise<void>] => {
+  ): Promise<
+    [
+      () => Promise<InterceptCb[]>,
+      (cb: InterceptCb | InterceptCb[]) => Promise<void>,
+    ]
+  > => {
     const getAfters = async () => {
-      const storedAfters = await redisClient.lRange(
-        `befter:after:${hookLabel}`,
-        0,
-        -1,
-      );
-      return storedAfters.map(
-        (fnStr) => new Function(`return ${fnStr}`)() as InterceptCb,
-      );
+      const result = await redisClient.get(`befter:after:${name}`);
+      return result
+        ? JSON.parse(result).map(
+            (fnStr: string) => new Function(`return ${fnStr}`)() as InterceptCb,
+          )
+        : [];
     };
 
     const addAfters = async (cb: InterceptCb | InterceptCb[]) => {
       const cbs = Array.isArray(cb) ? cb : [cb];
-      for (const fn of cbs) {
-        await redisClient.rPush(`befter:after:${hookLabel}`, fn.toString());
-      }
-    };
 
-    return [getAfters(), addAfters];
+      const existingBefores = await getAfters();
+
+      const newBeforeStrings = cbs.map((fn) => fn.toString());
+
+      newBeforeStrings.forEach((hookStr) => {
+        if (!existingBefores.map((fn) => fn.toString()).includes(hookStr)) {
+          existingBefores.push(new Function(`return ${hookStr}`)());
+        }
+      });
+
+      await redisClient.set(
+        `befter:after:${name}`,
+        JSON.stringify(existingBefores.map((fn) => fn.toString())),
+      );
+    };
+    const result = await getAfters();
+    return [getAfters, addAfters];
   };
+  //   const getAfters = async () => {
+  //     const storedAfters = await redisClient.lRange(
+  //       `befter:after:${name}`,
+  //       0,
+  //       -1,
+  //     );
+  //     console.log({ storedAfters });
+  //     return storedAfters.map(
+  //       (fnStr) => new Function(`return ${fnStr}`)() as InterceptCb,
+  //     );
+  //   };
+
+  //   const addAfters = async (cb: InterceptCb | InterceptCb[]) => {
+  //     const cbs = Array.isArray(cb) ? cb : [cb];
+
+  //     const afterHooks = cbs.map((fn) => fn.toString());
+
+  //     await redisClient.set(`befter:after:${name}`, JSON.stringify(afterHooks));
+  //   };
+  //   const afters = await getAfters();
+  //   return [afters, addAfters];
+  // };
   let currHooks = await redisClient.get(name);
   currHooks = JSON.parse(currHooks) as string[];
   return {
@@ -222,14 +307,28 @@ export const callRedisHook = async <
   } = { runner: "serial" },
 ): Promise<void> => {
   const hooks = JSON.parse((await redisClient.get(name)) || "[]");
+  const befores = JSON.parse(await redisClient.get(`befter:before:${name}`));
+  const afters = JSON.parse(await redisClient.get(`befter:after:${name}`));
+  if (befores) {
+    for (const hook of befores) {
+      console.log({ hook });
+      const evaledFunc = eval(hook);
+      await evaledFunc();
+    }
+  }
   if (option?.runner === "serial") {
     for (const hook of hooks) {
       const evaledFunc = eval(hook);
-      console.log({ evaledFunc });
       await evaledFunc();
     }
   } else {
     await Promise.all(hooks.map((hook: any) => eval(JSON.parse(hook))()));
+  }
+  if (afters) {
+    for (const hook of afters) {
+      const evaledFunc = eval(hook);
+      await evaledFunc();
+    }
   }
 };
 
