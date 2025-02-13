@@ -34,8 +34,9 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           cache: pnpm
 
-      - name: Install Turbo
-        run: pnpm add turbo --global
+      - name: Install
+        run: pnpm install
+
       - name: Build
         run: pnpm build
 
