@@ -1,31 +1,31 @@
 "use server";
 import { callHook, createBefter, hook } from "@farming-labs/befter";
 const hooks = createBefter({
-  storage: {
-    type: "local",
-  },
+	storage: {
+		type: "local",
+	},
 });
 export async function getStatusServer() {
-  const {
-    currHook: hookLists,
-    afterMeta: af,
-    beforeMeta: bf,
-  } = await hook(hooks, "hook1", () => {
-    console.log("Excuting the main hook.");
-  });
-  const [currBf, addBf] = await bf({ runner: "serial" });
-  const func1 = () => {
-    console.log("Do the preprocessing 1.");
-  };
-  const func2 = () => {
-    console.log("Do the preprocessing 2.");
-  };
-  addBf([func1, func2]);
+	const {
+		currHook: hookLists,
+		afterMeta: af,
+		beforeMeta: bf,
+	} = await hook(hooks, "hook1", () => {
+		console.log("Excuting the main hook.");
+	});
+	const [currBf, addBf] = await bf({ runner: "serial" });
+	const func1 = () => {
+		console.log("Do the preprocessing 1.");
+	};
+	const func2 = () => {
+		console.log("Do the preprocessing 2.");
+	};
+	addBf([func1, func2]);
 
-  const [currAf, addAf] = await af();
-  addAf(() => {
-    console.log("Do the postprocessing.");
-  });
-  await callHook(hooks, "hook1");
-  return { status: "ok" };
+	const [currAf, addAf] = await af();
+	addAf(() => {
+		console.log("Do the postprocessing.");
+	});
+	await callHook(hooks, "hook1");
+	return { status: "ok" };
 }
