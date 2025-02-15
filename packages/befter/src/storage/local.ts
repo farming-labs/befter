@@ -7,7 +7,7 @@ import {
   oneHookState,
 } from "../types";
 
-export function getStatusServerhookLocal<
+export function hookLocal<
   HooksT extends Record<string, any>,
   NameT extends HookKeys<HooksT>,
 >(
