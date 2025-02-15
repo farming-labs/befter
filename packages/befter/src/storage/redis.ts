@@ -283,9 +283,7 @@ export const getRedisConfigs = async <
   HooksT extends Record<string, any>,
   NameT extends HookKeys<HooksT>,
 >(
-  hook: any,
-  redisClient: any,
+  state: BaseBefterState<HooksT>,
 ) => {
-  const { options } = hook;
-  return options;
+  return null;
 };
