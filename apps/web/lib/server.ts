@@ -1,10 +1,11 @@
+"use server";
 import { callHook, createBefter, hook } from "@farming-labs/befter";
 const hooks = createBefter({
   storage: {
     type: "local",
   },
 });
-export async function getStatus() {
+export async function getStatusServer() {
   const {
     currHook: hookLists,
     afterMeta: af,
