@@ -11,6 +11,10 @@ export type BaseBefterState<HooksT> = {
 		before: InterceptCb[];
 		after: InterceptCb[];
 	};
+	storage?: {
+		type: "local" | "redis";
+		url?: string;
+	};
 };
 export type HookKeys<T> = keyof T & string;
 export type oneHookState = { [key: string]: InterceptCb[] };

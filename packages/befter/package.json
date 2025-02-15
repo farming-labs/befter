@@ -1,6 +1,6 @@
 {
   "name": "@farming-labs/befter",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -43,6 +43,7 @@
   "description": "",
   "dependencies": {
     "@farming-labs/typescript-config": "workspace:*",
+    "redis": "^4.7.0",
     "tsup": "^8.2.4",
     "unbuild": "^1.2.1",
     "vite": "^4.3.3",

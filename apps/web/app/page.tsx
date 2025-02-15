@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { getStatus } from "../lib/utils";
+import { getStatusServer } from "../lib/server";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -44,6 +45,14 @@ export default function Home() {
 						className={styles.secondary}
 					>
 						Read our docs
+					</a>
+
+					<a
+						onClick={() => getStatusServer()}
+						rel="noopener noreferrer"
+						className={styles.secondary}
+					>
+						Read our docs - server
 					</a>
 				</div>
 			</main>
