@@ -17,6 +17,7 @@ type hookFunctionRunner = "serial" | "parallel";
 type AnyObject<V extends string> = Record<V, any>;
 type InterceptorCb = {};
 type oneHookState = { [key: string]: InterceptCb[] };
+type HookAtIndex = { [name: string]: OneHookState[string][number] };
 import {
 	removeLocalHook,
 	updateLocalHook,
@@ -221,9 +222,13 @@ export const getHook = <
 	name: NameT,
 ): oneHookState | Promise<oneHookState> => {
 	if (state.storage.type === "redis" && state.storage.url) {
-		return getRedisHook(state, name, state.storage.url);
+		return getRedisHook(
+			state,
+			name,
+			state.storage.url,
+		) as Promise<oneHookState>;
 	} else {
-		return getLocalHook(state, name);
+		return getLocalHook(state, name) as oneHookState;
 	}
 };
 
@@ -235,12 +240,15 @@ export function getHookWithIndex<
 	state: BaseBefterState<HooksT>,
 	name: NameT,
 	index: number,
-):
-	| { [name: string]: OneHookState[string][number] }
-	| Promise<{ [name: string]: OneHookState[string][number] }> {
+): HookAtIndex | Promise<HookAtIndex> {
 	if (state.storage.type === "redis" && state.storage.url) {
-		return getRedisHookWithIndex(state, name, index, state.storage.url);
+		return getRedisHookWithIndex(
+			state,
+			name,
+			index,
+			state.storage.url,
+		) as Promise<HookAtIndex>;
 	} else {
-		return getLocalHookWithIndex(state, name, index);
+		return getLocalHookWithIndex(state, name, index) as HookAtIndex;
 	}
 }
