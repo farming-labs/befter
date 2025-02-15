@@ -17,7 +17,6 @@ export async function hookRedis<
 	function_:
 		| InferInterceptCallback<HooksT, NameT>
 		| InferInterceptCallback<HooksT, NameT>[],
-	redisClient: any,
 	options: {
 		allowDeprecated?: boolean;
 		afterRunner?: "serial" | "parallel";
@@ -30,8 +29,8 @@ export async function hookRedis<
 		runner: "serial",
 	},
 ): Promise<ReturnRedisHook<HooksT, NameT>> {
+	const redisClient = state.storage.client;
 	const hooks = JSON.parse((await redisClient.get(name)) || "[]");
-
 	const keyExists = await redisClient.get(name);
 	const existingHookList = JSON.parse(keyExists);
 	const existingHooks: string[] = keyExists ? JSON.parse(keyExists) : [];
@@ -140,7 +139,7 @@ export async function hookRedis<
 			name: HookKeys<HooksT>,
 			function_: InferInterceptCallback<HooksT, NameT>,
 			client?: any,
-		) => removeRedisHook(state, name, function_, client),
+		) => removeRedisHook(state, name, function_),
 	};
 }
 
@@ -167,8 +166,8 @@ export async function removeRedisHook<
 	state: BaseBefterState<HooksT>,
 	name: NameT,
 	function_: InferInterceptCallback<HooksT, NameT>,
-	redisClient: any,
 ): Promise<InterceptCb> {
+	const redisClient = state.storage.client;
 	const hooks = JSON.parse((await redisClient.get(name)) || "[]");
 	const index = hooks.indexOf(function_);
 	if (index !== -1) {
@@ -184,7 +183,8 @@ export async function removeRedisHook<
 export async function removeRedisHookItself<
 	HooksT extends Record<string, any>,
 	NameT extends HookKeys<HooksT>,
->(state: BaseBefterState<HooksT>, name: NameT, redisClient: any) {
+>(state: BaseBefterState<HooksT>, name: NameT) {
+	const redisClient = state.storage.client;
 	const getHook = await redisClient.get(name);
 	if (!getHook) {
 		return null;
@@ -203,8 +203,8 @@ export async function updateRedisHook<
 	name: NameT,
 	oldFunction: InferInterceptCallback<HooksT, NameT>,
 	newFunction: InferInterceptCallback<HooksT, NameT>,
-	redisClient: any,
 ): Promise<InterceptCb> {
+	const redisClient = state.storage.client;
 	const hooks = JSON.parse((await redisClient.get(name)) || "[]");
 	const stringfiedOldFunc = oldFunction.toString();
 	const index = hooks.indexOf(stringfiedOldFunc);
@@ -225,8 +225,8 @@ export async function getRedisHookWithIndex<
 	state: BaseBefterState<HooksT>,
 	name: NameT,
 	index: number,
-	redisClient: any,
 ): Promise<{ [name: string]: InterceptCb } | null> {
+	const redisClient = state.storage.client;
 	const hooks = JSON.parse((await redisClient.get(name)) || "[]");
 	if (!hooks || index >= hooks.length) return null;
 	return { [name]: eval(hooks[index]) };
@@ -236,11 +236,8 @@ export async function getRedisHookWithIndex<
 export async function getRedisHook<
 	HooksT extends Record<string, any>,
 	NameT extends HookKeys<HooksT>,
->(
-	state: BaseBefterState<HooksT>,
-	name: NameT,
-	redisClient: any,
-): Promise<oneHookState | null> {
+>(state: BaseBefterState<HooksT>, name: NameT): Promise<oneHookState | null> {
+	const redisClient = state.storage.client;
 	const hooks = JSON.parse((await redisClient.get(name)) || "[]");
 	return hooks.length > 0 ? { [name]: hooks } : null;
 }
@@ -251,17 +248,16 @@ export const callRedisHook = async <
 >(
 	state: BaseBefterState<HooksT>,
 	name: NameT,
-	redisClient: any,
 	option: {
 		runner: "serial" | "parallel";
 	} = { runner: "serial" },
 ): Promise<void> => {
+	const redisClient = state.storage.client;
 	const hooks = JSON.parse((await redisClient.get(name)) || "[]");
 	const befores = JSON.parse(await redisClient.get(`befter:before:${name}`));
 	const afters = JSON.parse(await redisClient.get(`befter:after:${name}`));
 	if (befores) {
 		for (const hook of befores) {
-			console.log({ hook });
 			const evaledFunc = eval(hook);
 			await evaledFunc();
 		}
@@ -272,7 +268,7 @@ export const callRedisHook = async <
 			await evaledFunc();
 		}
 	} else {
-		await Promise.all(hooks.map((hook: any) => eval(JSON.parse(hook))()));
+		await Promise.all(hooks.map((hook: any) => eval(hook)()));
 	}
 	if (afters) {
 		for (const hook of afters) {
@@ -287,9 +283,7 @@ export const getRedisConfigs = async <
 	HooksT extends Record<string, any>,
 	NameT extends HookKeys<HooksT>,
 >(
-	hook: any,
-	redisClient: any,
+	state: BaseBefterState<HooksT>,
 ) => {
-	const { options } = hook;
-	return options;
+	return null;
 };

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getStatus } from "../lib/utils";
 import { getStatusServer } from "../lib/server";
 import styles from "./page.module.css";
+import { getStatusWithRedis } from "../lib/redis-utils";
 
 export default function Home() {
 	return (
@@ -53,6 +54,13 @@ export default function Home() {
 						className={styles.secondary}
 					>
 						Read our docs - server
+					</a>
+					<a
+						onClick={() => getStatusWithRedis()}
+						rel="noopener noreferrer"
+						className={styles.secondary}
+					>
+						Read our docs - redis
 					</a>
 				</div>
 			</main>

@@ -119,6 +119,7 @@ export function createBefter<HooksT extends Record<string, any>>(options: {
 		storage: {
 			type: options.storage.type,
 			url: options.storage.url,
+			client: options.storage.client,
 		},
 	};
 }
@@ -134,9 +135,10 @@ export function hook<
 		| InferInterceptCallback<HooksT, NameT>
 		| InferInterceptCallback<HooksT, NameT>[],
 	options: HookOptions = { runner: "serial", storage: "local" },
+	redisClient?: any,
 ): ReturnLocalHook<HooksT, NameT> | Promise<ReturnRedisHook<HooksT, NameT>> {
 	if (isRedisStorage(state)) {
-		return hookRedis(state, name, function_, state.storage.url) as Promise<
+		return hookRedis(state, name, function_, redisClient) as Promise<
 			ReturnRedisHook<HooksT, NameT>
 		>;
 	} else {
@@ -154,7 +156,7 @@ export async function callHook<
 	option: { runner: HookFunctionRunner } = { runner: "serial" },
 ): Promise<void> {
 	if (isRedisStorage(state)) {
-		await callRedisHook(state, name, state.storage.url);
+		await callRedisHook(state, name);
 	} else {
 		await callLocalHook(state, name);
 	}
@@ -171,13 +173,7 @@ export function updateHook<
 	newFunction: InferInterceptCallback<HooksT, NameT>,
 ): InterceptCb | Promise<InterceptCb> {
 	if (isRedisStorage(state)) {
-		return updateRedisHook(
-			state,
-			name,
-			oldFunction,
-			newFunction,
-			state.storage.url,
-		);
+		return updateRedisHook(state, name, oldFunction, newFunction);
 	} else {
 		return updateLocalHook(state, name, oldFunction, newFunction);
 	}
@@ -193,12 +189,7 @@ export function removeHook<
 	function_: InferInterceptCallback<HooksT, NameT>,
 ): InterceptCb | Promise<InterceptCb> {
 	if (isRedisStorage(state)) {
-		return removeRedisHook(
-			state,
-			name,
-			function_,
-			state.storage.url,
-		) as Promise<InterceptCb>;
+		return removeRedisHook(state, name, function_) as Promise<InterceptCb>;
 	} else {
 		return removeLocalHook(state, name, function_) as InterceptCb;
 	}
@@ -213,11 +204,7 @@ export function removeHookItself<
 	name: NameT,
 ): OneHookState | null | Promise<OneHookState> {
 	if (isRedisStorage(state)) {
-		return removeRedisHookItself(
-			state,
-			name,
-			state.storage.url,
-		) as Promise<OneHookState> | null;
+		return removeRedisHookItself(state, name) as Promise<OneHookState> | null;
 	} else {
 		return removeLocalHookItself(state, name) as OneHookState | null;
 	}
@@ -231,11 +218,7 @@ export const getHook = <
 	name: NameT,
 ): oneHookState | Promise<oneHookState> => {
 	if (state.storage.type === "redis" && state.storage.url) {
-		return getRedisHook(
-			state,
-			name,
-			state.storage.url,
-		) as Promise<oneHookState>;
+		return getRedisHook(state, name) as Promise<oneHookState>;
 	} else {
 		return getLocalHook(state, name) as oneHookState;
 	}
@@ -251,12 +234,7 @@ export function getHookWithIndex<
 	index: number,
 ): HookAtIndex | Promise<HookAtIndex> {
 	if (state.storage.type === "redis" && state.storage.url) {
-		return getRedisHookWithIndex(
-			state,
-			name,
-			index,
-			state.storage.url,
-		) as Promise<HookAtIndex>;
+		return getRedisHookWithIndex(state, name, index) as Promise<HookAtIndex>;
 	} else {
 		return getLocalHookWithIndex(state, name, index) as HookAtIndex;
 	}

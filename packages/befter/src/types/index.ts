@@ -14,6 +14,7 @@ export type BaseBefterState<HooksT> = {
 	storage?: {
 		type: "local" | "redis";
 		url?: string;
+		client?: any;
 	};
 };
 export type HookKeys<T> = keyof T & string;
