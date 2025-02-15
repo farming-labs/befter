@@ -222,7 +222,7 @@ export function removeHookItself<
 		return removeLocalHookItself(state, name) as OneHookState | null;
 	}
 }
-
+// getHook by its name
 export const getHook = <
 	HooksT extends Record<string, any>,
 	NameT extends HookKeys<HooksT>,
