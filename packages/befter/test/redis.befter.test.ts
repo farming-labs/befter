@@ -6,6 +6,7 @@ import {
 	getRedisHookWithIndex,
 	hookRedis,
 	updateRedisHook,
+	removeRedisHookItself,
 } from "../src/storage/redis";
 import { createClient } from "redis";
 
@@ -144,8 +145,34 @@ describe("Befter: [REDIS CORE]", () => {
 		expect(hook1).toHaveLength(1);
 
 		const hookUpdate = await getRedisHook(hooks, "hook1", redisClient);
-		hook1 = hookUpdate["hook1"];
-		expect(eval(hook1[0])).toBeInstanceOf(Function);
+		const hookFns = hookUpdate["hook1"];
+		expect(eval(hookFns[0])).toBeInstanceOf(Function);
+		await redisClient.flushAll();
+	});
+	test("should remove a hook itself", async () => {
+		const hooks = createBefter({
+			storage: {
+				type: "redis",
+				url: "redis://localhost:6379",
+			},
+		});
+
+		const { currHook } = await hookRedis(
+			hooks,
+			"hook1",
+			() => {
+				console.log("This is first");
+			},
+			redisClient,
+		);
+		const removedHook = await removeRedisHookItself(
+			hooks,
+			"hook1",
+			redisClient,
+		);
+		expect(removedHook).toStrictEqual(currHook);
+		const hookAfterRemove = await redisClient.get("hook1");
+		expect(hookAfterRemove).toBeNull();
 		await redisClient.flushAll();
 	});
 
