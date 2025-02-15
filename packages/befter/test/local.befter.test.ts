@@ -87,9 +87,12 @@ describe("Befter: [CORE]", () => {
 			"hook2",
 			() => {},
 		);
+
+		const hook1 = getLocalHook(hooks, "hook1");
 		expect(hookList1).toBeInstanceOf(Object);
 		const removedHook = removeLocalHookItself(hooks, "hook1");
-
+		expect(removedHook).toBeInstanceOf(Object);
+		expect(removedHook).toMatchObject(hook1);
 		expect(removedHook).toBeInstanceOf(Object);
 	});
 	test("should get a hook lists", () => {
