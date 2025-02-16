@@ -1,13 +1,14 @@
 import { describe, expect, test, vi, beforeAll, afterAll } from "vitest";
-import { createBefter } from "../src";
 import {
-	callRedisHook,
-	getRedisHook,
-	getRedisHookWithIndex,
-	hookRedis,
-	updateRedisHook,
-	removeRedisHookItself,
-} from "../src/storage/redis";
+	createBefter,
+	getHook,
+	hook,
+	callHook,
+	removeHookItself,
+	updateHook,
+	getHookWithIndex,
+} from "../src";
+
 import { createClient } from "redis";
 
 let redisClient = null;
@@ -31,19 +32,19 @@ describe("Befter: [REDIS CORE]", () => {
 		});
 
 		expect(hooks).toBeInstanceOf(Object);
-		const { currHook: hookLists } = await hookRedis(
+		const { currHook: hookLists } = await hook(
 			hooks,
 			"hook1",
 			() => console.log("A main function for redis"),
 			redisClient,
 		);
-		let hook1 = await getRedisHook(hooks, "hook1");
+		let hook1 = await getHook(hooks, "hook1");
 		const hookLength = hook1["hook1"];
 		expect(hookLength).toHaveLength(1);
-		await hookRedis(hooks, "hook1", () => {
+		await hook(hooks, "hook1", () => {
 			console.log("A later function for redis");
 		});
-		hook1 = await getRedisHook(hooks, "hook1");
+		hook1 = await getHook(hooks, "hook1");
 		const hookLength2 = hook1["hook1"];
 		expect(hookLength2).toHaveLength(2);
 
@@ -59,14 +60,14 @@ describe("Befter: [REDIS CORE]", () => {
 			},
 		});
 		expect(hooks).toBeInstanceOf(Object);
-		const { currHook: hookLists, removeHook } = await hookRedis(
+		const { currHook: hookLists, removeHook } = await hook(
 			hooks,
 			"hook1",
 			() => {},
 		);
 		const hook1 = hookLists["hook1"];
 		expect(hook1).toBeInstanceOf(Object);
-		await hookRedis(hooks, "hook1", () => {}, redisClient);
+		await hook(hooks, "hook1", () => {}, redisClient);
 		const currIndx = 0;
 		const removedHook = await removeHook(hooks, "hook1", hook1[currIndx]);
 		expect(removedHook).toBeInstanceOf(Function);
@@ -83,14 +84,14 @@ describe("Befter: [REDIS CORE]", () => {
 			},
 		});
 		expect(hooks).toBeInstanceOf(Object);
-		const { currHook: hookLists, removeHook } = await hookRedis(
+		const { currHook: hookLists, removeHook } = await hook(
 			hooks,
 			"hook1",
 			() => {},
 		);
 		const hook1 = hookLists["hook1"];
 		expect(hook1).toBeInstanceOf(Object);
-		await hookRedis(hooks, "hook1", () => {});
+		await hook(hooks, "hook1", () => {});
 		const nonExistentHook = () => {
 			console.log("I am not existent");
 		};
@@ -112,7 +113,7 @@ describe("Befter: [REDIS CORE]", () => {
 		const oldFn = () => {
 			console.log("Old function");
 		};
-		const { currHook: hookLists, removeHook } = await hookRedis(
+		const { currHook: hookLists, removeHook } = await hook(
 			hooks,
 			"hook1",
 			oldFn,
@@ -122,13 +123,13 @@ describe("Befter: [REDIS CORE]", () => {
 		const newFn = () => {
 			console.log("Updated");
 		};
-		const updatedHook = await updateRedisHook(hooks, "hook1", oldFn, () => {
+		const updatedHook = await updateHook(hooks, "hook1", oldFn, () => {
 			console.log("Updated");
 		});
 		expect(updatedHook).toBeInstanceOf(Function);
 		expect(hook1).toHaveLength(1);
 
-		const hookUpdate = await getRedisHook(hooks, "hook1");
+		const hookUpdate = await getHook(hooks, "hook1");
 		const hookFns = hookUpdate["hook1"];
 		expect(eval(hookFns[0])).toBeInstanceOf(Function);
 		await redisClient.flushAll();
@@ -142,10 +143,10 @@ describe("Befter: [REDIS CORE]", () => {
 			},
 		});
 
-		const { currHook } = await hookRedis(hooks, "hook1", () => {
+		const { currHook } = await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
-		const removedHook = await removeRedisHookItself(hooks, "hook1");
+		const removedHook = await removeHookItself(hooks, "hook1");
 		expect(removedHook).toStrictEqual(currHook);
 		const hookAfterRemove = await redisClient.get("hook1");
 		expect(hookAfterRemove).toBeNull();
@@ -162,10 +163,10 @@ describe("Befter: [REDIS CORE]", () => {
 		});
 
 		const consoleLogSpy = vi.spyOn(console, "log");
-		await hookRedis(hooks, "hook1", () => {
+		await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
-		await callRedisHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
 		await redisClient.flushAll();
 	});
@@ -180,7 +181,7 @@ describe("Befter: [REDIS CORE]", () => {
 		});
 		expect(hooks).toBeInstanceOf(Object);
 
-		const { currHook } = await hookRedis(
+		const { currHook } = await hook(
 			hooks,
 			"hook1",
 			() => {
@@ -188,7 +189,7 @@ describe("Befter: [REDIS CORE]", () => {
 			},
 			redisClient,
 		);
-		const hookFunctionByIndx = await getRedisHookWithIndex(hooks, "hook1", 0);
+		const hookFunctionByIndx = await getHookWithIndex(hooks, "hook1", 0);
 		expect(hookFunctionByIndx).toBeInstanceOf(Object);
 		expect(hookFunctionByIndx["hook1"]).toBeInstanceOf(Function);
 		await redisClient.flushAll();
@@ -204,10 +205,10 @@ describe("Befter: [REDIS CORE]", () => {
 		});
 		expect(hooks).toBeInstanceOf(Object);
 		const consoleLogSpy = vi.spyOn(console, "log");
-		await hookRedis(hooks, "hook1", () => {
+		await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
-		await callRedisHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
 
 		await redisClient.flushAll();
@@ -230,8 +231,8 @@ describe("Befter: [REDIS CORE]", () => {
 		const syncFn = () => {
 			console.log("This is an sync function.");
 		};
-		await hookRedis(hooks, "hook1", [asyncFn, syncFn]);
-		await callRedisHook(hooks, "hook1", redisClient);
+		await hook(hooks, "hook1", [asyncFn, syncFn]);
+		await callHook(hooks, "hook1", redisClient);
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is an sync function.");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is an async function.");
 
@@ -249,13 +250,9 @@ describe("Befter: [REDIS CORE]", () => {
 		expect(hooks).toBeInstanceOf(Object);
 
 		const consoleLogSpy = vi.spyOn(console, "log");
-		const { afterMeta: af, beforeMeta: bf } = await hookRedis(
-			hooks,
-			"hook1",
-			() => {
-				console.log("This is first");
-			},
-		);
+		const { afterMeta: af, beforeMeta: bf } = await hook(hooks, "hook1", () => {
+			console.log("This is first");
+		});
 		const [currBf, addBf] = await bf({
 			runner: "serial",
 		});
@@ -273,7 +270,7 @@ describe("Befter: [REDIS CORE]", () => {
 		await addBf([func1, func2]);
 		const currBefore2 = await currBf();
 		expect(currBefore2).toHaveLength(3);
-		await callRedisHook(hooks, "hook1", redisClient);
+		await callHook(hooks, "hook1", redisClient);
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is before");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is before 1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is before 2");
@@ -292,7 +289,7 @@ describe("Befter: [REDIS CORE]", () => {
 		});
 		expect(hooks).toBeInstanceOf(Object);
 		const consoleLogSpy = vi.spyOn(console, "log");
-		const { afterMeta: af } = await hookRedis(hooks, "hook1", () => {
+		const { afterMeta: af } = await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
 		const [currAf, addAf] = await af({ runner: "serial" });
@@ -301,7 +298,7 @@ describe("Befter: [REDIS CORE]", () => {
 		});
 		const currAfter1 = await currAf();
 		expect(currAfter1).toHaveLength(1);
-		await callRedisHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is after");
 		await redisClient.flushAll();
