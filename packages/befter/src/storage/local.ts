@@ -27,7 +27,7 @@ export function hookLocal<
 		beforeRunner: "serial",
 		runner: "serial",
 	},
-): {
+): Promise<{
 	currHook: { [key: string]: InterceptCb[] };
 	beforeMeta: (option?: {
 		runner: "serial" | "parallel";
@@ -40,7 +40,7 @@ export function hookLocal<
 		name: HookKeys<HooksT>,
 		function_: InferInterceptCallback<HooksT, NameT>,
 	) => void;
-} {
+}> {
 	state.hooks[name] = state.hooks[name] || [];
 
 	if (Array.isArray(function_)) {
@@ -78,13 +78,13 @@ export function hookLocal<
 		return [after, addAfters];
 	};
 
-	return {
+	return Promise.resolve({
 		currHook: { [name]: state.hooks[name] },
 		beforeMeta: beforeMetas,
 		afterMeta: afterMetas,
 		removeHook: (state, name, function_) =>
 			removeLocalHook(state, name, function_),
-	};
+	});
 }
 
 // Call Hook from Local Storage

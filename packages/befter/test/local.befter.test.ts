@@ -1,64 +1,58 @@
 import { describe, expect, test, vi } from "vitest";
-import { createBefter } from "../src";
-import {
-	callLocalHook,
-	getLocalHook,
-	getLocalHookWithIndex,
-	hookLocal,
-	removeLocalHookItself,
-	updateLocalHook,
-} from "../src/storage/local";
+import { createBefter, getHookWithIndex } from "../src";
+import { hook, getHook, updateHook, removeHookItself, callHook } from "../src";
+
 describe("Befter: [CORE]", () => {
-	test("should create a hook with label", () => {
+	test("should create a hook with label", async () => {
 		const hooks = createBefter({
 			storage: {
 				type: "local",
 			},
 		});
 		expect(hooks).toBeInstanceOf(Object);
-		const { currHook: hookLists } = hookLocal(hooks, "hook1", () => {});
+		const { currHook: hookLists } = await hook(hooks, "hook1", () => {});
 		const hook1 = hookLists["hook1"];
 		expect(hook1).toHaveLength(1);
-		hookLocal(hooks, "hook1", () => {});
+		await hook(hooks, "hook1", () => {});
 		expect(hook1).toHaveLength(2);
 		expect(hook1).toEqual([expect.any(Function), expect.any(Function)]);
 	});
-	test("should create a hook and purge it", () => {
+	test("should create a hook and purge it", async () => {
 		const hooks = createBefter({
 			storage: {
 				type: "local",
 			},
 		});
 		expect(hooks).toBeInstanceOf(Object);
-		const { currHook: hookLists, removeHook } = hookLocal(
+		const { currHook: hookLists, removeHook } = await hook(
 			hooks,
 			"hook1",
 			() => {},
 		);
 		const hook1 = hookLists["hook1"];
 		expect(hook1).toBeInstanceOf(Object);
-		hookLocal(hooks, "hook1", () => {});
+		await hook(hooks, "hook1", () => {});
 		const currIndx = 0;
 		const removedHook = removeHook(hooks, "hook1", hook1[currIndx]);
 		expect(removedHook).toBeInstanceOf(Function);
 		expect(hook1).toHaveLength(1);
 	});
 
-	test("should create a hook and purge a non existent one", () => {
+	test("should create a hook and purge a non existent one", async () => {
 		const hooks = createBefter({
 			storage: {
 				type: "local",
 			},
 		});
 		expect(hooks).toBeInstanceOf(Object);
-		const { currHook: hookLists, removeHook } = hookLocal(
+		const { currHook: hookLists, removeHook } = await hook(
 			hooks,
 			"hook1",
 			() => {},
 		);
 		const hook1 = hookLists["hook1"];
 		expect(hook1).toBeInstanceOf(Object);
-		hookLocal(hooks, "hook1", () => {});
+		await hook(hooks, "hook1", () => {});
 		const currIndx = 0;
 		const nonExistentHook = () => {
 			console.log("I am not existent");
@@ -68,42 +62,44 @@ describe("Befter: [CORE]", () => {
 		}).toThrow();
 	});
 
-	test("should remove hook itself", () => {
+	test("should remove hook itself", async () => {
 		const hooks = createBefter({
 			storage: {
 				type: "local",
 			},
 		});
 		expect(hooks).toBeInstanceOf(Object);
-		const { currHook: hookList1, removeHook: removeHook1 } = hookLocal(
+		const { currHook: hookList1, removeHook: removeHook1 } = await hook(
 			hooks,
 			"hook1",
 			() => {
 				console.log("I am removed");
 			},
 		);
-		const { currHook: hookList2, removeHook: removeHook2 } = hookLocal(
+		const { currHook: hookList2, removeHook: removeHook2 } = await hook(
 			hooks,
 			"hook2",
 			() => {},
 		);
 
-		const hook1 = getLocalHook(hooks, "hook1");
+		let hook1 = await getHook(hooks, "hook1");
 		expect(hookList1).toBeInstanceOf(Object);
-		const removedHook = removeLocalHookItself(hooks, "hook1");
+		const removedHook = await removeHookItself(hooks, "hook1");
 		expect(removedHook).toBeInstanceOf(Object);
 		expect(removedHook).toMatchObject(hook1);
+		hook1 = await getHook(hooks, "hook1");
+		expect(hook1).toBeNull();
 		expect(removedHook).toBeInstanceOf(Object);
 	});
-	test("should get a hook lists", () => {
+	test("should get a hook lists", async () => {
 		const hooks = createBefter({
 			storage: {
 				type: "local",
 			},
 		});
 		expect(hooks).toBeInstanceOf(Object);
-		hookLocal(hooks, "hook1", () => {});
-		const currHook = getLocalHook(hooks, "hook1");
+		await hook(hooks, "hook1", () => {});
+		const currHook = getHook(hooks, "hook1");
 		expect(currHook).toBeInstanceOf(Object);
 	});
 	test("should update a labeled hook", async () => {
@@ -114,20 +110,20 @@ describe("Befter: [CORE]", () => {
 		});
 		expect(hooks).toBeInstanceOf(Object);
 
-		const { currHook } = hookLocal(hooks, "hook1", () => {
+		const { currHook } = await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
 		const consoleLogSpy = vi.spyOn(console, "log");
-		await callLocalHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
 		// expect(currHook).toBeInstanceOf(Object);
-		updateLocalHook(hooks, "hook1", currHook["hook1"][0], () => {
+		await updateHook(hooks, "hook1", currHook["hook1"][0], () => {
 			console.log("This is updated");
 		});
-		await callLocalHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is updated");
 	});
-	test("should get function with in the hook lists based on the index", () => {
+	test("should get function with in the hook lists based on the index", async () => {
 		const hooks = createBefter({
 			storage: {
 				type: "local",
@@ -135,10 +131,10 @@ describe("Befter: [CORE]", () => {
 		});
 		expect(hooks).toBeInstanceOf(Object);
 
-		const { currHook } = hookLocal(hooks, "hook1", () => {
+		const { currHook } = await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
-		const hookFunctionByIndx = getLocalHookWithIndex(hooks, "hook1", 0);
+		const hookFunctionByIndx = await getHookWithIndex(hooks, "hook1", 0);
 		expect(hookFunctionByIndx).toBeInstanceOf(Object);
 		expect(hookFunctionByIndx["hook1"]).toBeInstanceOf(Function);
 	});
@@ -150,10 +146,10 @@ describe("Befter: [CORE]", () => {
 		});
 		expect(hooks).toBeInstanceOf(Object);
 		const consoleLogSpy = vi.spyOn(console, "log");
-		hookLocal(hooks, "hook1", () => {
+		await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
-		await callLocalHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
 	});
 	test("should call an async hook lists", async () => {
@@ -171,8 +167,8 @@ describe("Befter: [CORE]", () => {
 		const syncFn = () => {
 			console.log("This is an sync function.");
 		};
-		hookLocal(hooks, "hook1", [asyncFn, syncFn]);
-		await callLocalHook(hooks, "hook1");
+		await hook(hooks, "hook1", [asyncFn, syncFn]);
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is an sync function.");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is an async function.");
 	});
@@ -185,10 +181,10 @@ describe("Befter: [CORE]", () => {
 		expect(hooks).toBeInstanceOf(Object);
 
 		const consoleLogSpy = vi.spyOn(console, "log");
-		const { afterMeta: af, beforeMeta: bf } = hookLocal(hooks, "hook1", () => {
+		const { afterMeta: af, beforeMeta: bf } = await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
-		const [currBf, addBf] = bf({
+		const [currBf, addBf] = await bf({
 			runner: "serial",
 		});
 		addBf(() => {
@@ -203,7 +199,7 @@ describe("Befter: [CORE]", () => {
 		};
 		addBf([func1, func2]);
 		expect(currBf).toHaveLength(3);
-		await callLocalHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is before");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is before 1");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is before 2");
@@ -217,15 +213,15 @@ describe("Befter: [CORE]", () => {
 		});
 		expect(hooks).toBeInstanceOf(Object);
 		const consoleLogSpy = vi.spyOn(console, "log");
-		const { beforeMeta: bf, afterMeta: af } = hookLocal(hooks, "hook1", () => {
+		const { beforeMeta: bf, afterMeta: af } = await hook(hooks, "hook1", () => {
 			console.log("This is first");
 		});
-		const [currAf, addAf] = af();
+		const [currAf, addAf] = await af();
 		addAf(() => {
 			console.log("This is after");
 		});
 		expect(currAf).toHaveLength(1);
-		await callLocalHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is first");
 		expect(consoleLogSpy).toHaveBeenCalledWith("This is after");
@@ -249,25 +245,25 @@ describe("Befter: [CORE]", () => {
 			currHook,
 			beforeMeta: bf1,
 			afterMeta: af1,
-		} = hookLocal(hooks, "hook1", [mainHookFunc1, mainHookFunc2]);
+		} = await hook(hooks, "hook1", [mainHookFunc1, mainHookFunc2]);
 
 		expect(currHook["hook1"]).toBeInstanceOf(Array);
 
 		expect(currHook["hook1"]).toHaveLength(2);
-		const [currAf1, addAf1] = af1({
+		const [currAf1, addAf1] = await af1({
 			runner: "serial",
 		});
 		addAf1(() => {
 			console.log("This is after hook1");
 		});
-		const { beforeMeta: bf2, afterMeta: af2 } = hookLocal(
+		const { beforeMeta: bf2, afterMeta: af2 } = await hook(
 			hooks,
 			"hook2",
 			() => {
 				console.log("This is hook2");
 			},
 		);
-		const [currAf2, addAf2] = af2({
+		const [currAf2, addAf2] = await af2({
 			runner: "parallel",
 		});
 		addAf2(() => {
@@ -275,12 +271,12 @@ describe("Befter: [CORE]", () => {
 		});
 
 		let startTime = performance.now();
-		await callLocalHook(hooks, "hook1");
+		await callHook(hooks, "hook1");
 		let endTime = performance.now();
 		const timeDiffOnSerial = endTime - startTime;
 
 		startTime = performance.now();
-		await callLocalHook(hooks, "hook2", { runner: "parallel" });
+		await callHook(hooks, "hook2", { runner: "parallel" });
 		endTime = performance.now();
 		const timeDiffOnParallel = endTime - startTime;
 

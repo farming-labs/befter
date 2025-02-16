@@ -12,11 +12,12 @@ type InferSpyEvent<HT extends Record<string, any>> = {
 		context: Record<string, any>;
 	};
 }[keyof HT];
-type Storage = "local" | "redis";
+type Storage = { type: "local" | "redis"; url?: string; client?: any };
 type hookFunctionRunner = "serial" | "parallel";
-type AnyObject<V extends string> = Record<V, any>;
-type InterceptorCb = {};
 type oneHookState = { [key: string]: InterceptCb[] };
+type IsRedisStorage<T> = T extends { storage: { type: "redis" } }
+	? true
+	: false;
 type HookAtIndex = { [name: string]: OneHookState[string][number] };
 import {
 	removeLocalHook,
@@ -44,7 +45,6 @@ interface HookOptions {
 	beforeRunner?: HookFunctionRunner;
 	runner?: HookFunctionRunner;
 	storage?: Storage;
-	redisUrl?: string;
 }
 type ReturnLocalHook<T, S extends keyof T> = {
 	currHook: oneHookState;
@@ -99,13 +99,12 @@ export type ReturnRedisHook<
 		state: BaseBefterState<HooksT>,
 		name: HookKeys<HooksT>,
 		function_: InferInterceptCallback<HooksT, NameT>,
-		client?: any,
 	) => Promise<InterceptCb>;
 };
 // Create Befter state
 export function createBefter<HooksT extends Record<string, any>>(options: {
 	storage: {
-		type: Storage;
+		type: "local" | "redis";
 		url?: string;
 		client?: any;
 	};
@@ -134,15 +133,21 @@ export function hook<
 	function_:
 		| InferInterceptCallback<HooksT, NameT>
 		| InferInterceptCallback<HooksT, NameT>[],
-	options: HookOptions = { runner: "serial", storage: "local" },
-	redisClient?: any,
-): ReturnLocalHook<HooksT, NameT> | Promise<ReturnRedisHook<HooksT, NameT>> {
+	options: HookOptions = {
+		runner: "serial",
+		storage: {
+			type: "local",
+		},
+	},
+) {
 	if (isRedisStorage(state)) {
-		return hookRedis(state, name, function_, redisClient) as Promise<
+		return hookRedis(state, name, function_) as Promise<
 			ReturnRedisHook<HooksT, NameT>
 		>;
 	} else {
-		return hookLocal(state, name, function_) as ReturnLocalHook<HooksT, NameT>;
+		return hookLocal(state, name, function_) as Promise<
+			ReturnLocalHook<HooksT, NameT>
+		>;
 	}
 }
 

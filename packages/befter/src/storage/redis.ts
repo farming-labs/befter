@@ -6,7 +6,7 @@ import {
 	InterceptCb,
 	oneHookState,
 } from "../types";
-
+type BefterRunner = () => Promise<InterceptCb[]>;
 // Hook with Redis Storage
 export async function hookRedis<
 	HooksT extends Record<string, any>,
@@ -48,8 +48,6 @@ export async function hookRedis<
 	await redisClient.set(name, JSON.stringify(existingHooks));
 
 	const beforeMetas = async (
-		hooks?: any,
-		hookLabel?: string,
 		option: { runner: "serial" | "parallel" } = { runner: "serial" },
 	): Promise<
 		[
@@ -89,8 +87,6 @@ export async function hookRedis<
 	};
 
 	const afterMetas = async (
-		hooks?: any,
-		hookLabel?: string,
 		option: { runner: "serial" | "parallel" } = { runner: "serial" },
 	): Promise<
 		[
@@ -138,7 +134,6 @@ export async function hookRedis<
 			state: BaseBefterState<HooksT>,
 			name: HookKeys<HooksT>,
 			function_: InferInterceptCallback<HooksT, NameT>,
-			client?: any,
 		) => removeRedisHook(state, name, function_),
 	};
 }
