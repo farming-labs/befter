@@ -1,0 +1,15 @@
+---
+title: "Introduction"
+description: "A lightweight JavaScript library for managing hooks — register, invoke, update, and sequence them with full control over execution order."
+order: 0
+---
+
+# Introduction
+
+Befter is a lightweight JavaScript library for managing hooks. It gives you a clean API to register hooks by name, invoke them in sequence, update or remove them at runtime, and precisely control whether a hook runs before or after another — all without pulling in a heavy event system.
+
+The core primitive is `createBefter`, which returns a hook registry you own. From there you attach callbacks with `hook`, trigger them with `callHook`, and clean up with `removeHook` or `removeHookItself`. Every function is fully typed, so TypeScript infers the callback signatures from the hook keys you define.
+
+Befter ships with both in-process (local) and Redis-backed storage adapters, so the same hook model scales from a single Node.js process to a distributed system. Serial and parallel execution helpers give you fine-grained control over how a group of hooks is called.
+
+Ready to add Befter to your project? Head to [Installation](/docs/installation) to add the package, or jump straight to [Quickstart](/docs/quickstart) to see a working example in under a minute.
