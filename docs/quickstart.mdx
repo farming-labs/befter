@@ -1,0 +1,75 @@
+---
+title: "Quickstart"
+description: "Run Befter for the first time."
+order: 20
+---
+
+# Quickstart
+
+This page walks you through creating a Befter instance, registering a hook, and invoking it — the complete loop in a single file. You should have Befter installed already; if not, see [Installation](/docs/installation) first.
+
+## Create a registry
+
+`createBefter` returns a registry that holds all your named hooks. Pass an empty object to start with a blank slate:
+
+```ts
+import { createBefter } from "@farming-labs/befter"
+
+const befter = createBefter({})
+```
+
+## Register a hook
+
+Use `hook` to attach a callback to a named key. The name is a plain string that becomes the identifier you use to invoke or remove the hook later:
+
+```ts
+befter.hook("user:created", async (user) => {
+  console.log("New user registered:", user.name)
+})
+```
+
+You can register multiple callbacks under the same key — Befter tracks them all and calls them in registration order by default.
+
+## Call the hook
+
+Use `callHook` to invoke every callback registered under a key, passing whatever arguments your callbacks expect:
+
+```ts
+await befter.callHook("user:created", { name: "Alice" })
+// → New user registered: Alice
+```
+
+`callHook` returns a promise that resolves once all callbacks have finished, making it safe to `await` in async workflows.
+
+## Update or remove a hook
+
+You can swap out a callback at runtime with `updateHook`, or tear it down entirely with `removeHook`:
+
+```ts
+// Remove all callbacks for a key
+befter.removeHook("user:created")
+```
+
+Use `removeHookItself` when you have a direct reference to the callback and want to remove only that one entry, leaving any other callbacks on the same key intact.
+
+## Complete example
+
+```ts
+import { createBefter } from "@farming-labs/befter"
+
+const befter = createBefter({})
+
+befter.hook("order:placed", async (order) => {
+  console.log(`Order #${order.id} received`)
+})
+
+befter.hook("order:placed", async (order) => {
+  console.log(`Sending confirmation email to ${order.email}`)
+})
+
+await befter.callHook("order:placed", { id: 42, email: "alice@example.com" })
+// → Order #42 received
+// → Sending confirmation email to alice@example.com
+```
+
+Both callbacks run in sequence under the same key — no extra wiring needed.

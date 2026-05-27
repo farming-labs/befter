@@ -1,0 +1,57 @@
+---
+title: "Installation"
+description: "Install and configure Befter."
+order: 10
+---
+
+# Installation
+
+Befter is published to npm as `@farming-labs/befter`. You need Node.js 18 or later before you begin.
+
+## Install the package
+
+Choose your package manager:
+
+```bash
+npm install @farming-labs/befter
+```
+
+```bash
+pnpm add @farming-labs/befter
+```
+
+```bash
+yarn add @farming-labs/befter
+```
+
+## Import the library
+
+Once installed, import `createBefter` to create your first hook registry:
+
+```ts
+import { createBefter } from "@farming-labs/befter"
+```
+
+That single import is all you need to get started. The package ships as an ES module with TypeScript declarations included — no extra `@types` package required.
+
+## Verify the install
+
+Create a small smoke-test file and run it with Node.js or your preferred runtime:
+
+```ts
+import { createBefter } from "@farming-labs/befter"
+
+const befter = createBefter({})
+console.log("Befter ready:", typeof befter.hook === "function")
+```
+
+```bash
+node smoke-test.mjs
+# Befter ready: true
+```
+
+If you see `Befter ready: true`, the package is wired up correctly.
+
+## Next steps
+
+With the package installed, head to [Quickstart](/docs/quickstart) to register your first hook and call it.
